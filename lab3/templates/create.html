@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% include 'header.html' %}
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="margin-bottom: 10px">
+            <h4>Create User</h4>
+        </div>
+    </div>
+    <form class="form-horizontal" id="create_user">
+        <div class="form-group">
+            <label class="control-label col-sm-2">First Name:</label>
+            <div class="col-sm-10">
+                <input class="form-control" id="first_name" name="first_name" placeholder="First Name">
+            </div>
+        </div>
+         <div class="form-group">
+            <label class="control-label col-sm-2">Last Name:</label>
+            <div class="col-sm-10">
+                <input class="form-control" id="last_name" name="last_name" placeholder="Last Name">
+            </div>
+        </div>
+         <div class="form-group">
+            <label class="control-label col-sm-2">Username:</label>
+            <div class="col-sm-10">
+                <input class="form-control" id="public_display_name" name="public_display_name" placeholder="Username">
+            </div>
+        </div>
+         <div class="form-group">
+            <label class="control-label col-sm-2">About me:</label>
+            <div class="col-sm-10">
+                <input class="form-control" id="about_me" name="about_me" placeholder="About Me">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Profile link:</label>
+            <div class="col-sm-10">
+                <input class="form-control" id="profile_link" name="profile_link" placeholder="Profile link">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Email:</label>
+            <div class="col-sm-10">
+                <input class="form-control" id="email" name="email"
+                       placeholder="Email">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Password:</label>
+            <div class="col-sm-10">
+                <input class="form-control" id="password" name="password" placeholder="Password">
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button class="btn btn-default" onclick="create()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script>
+    var table;
+    let editOnClick = (type, id) => {
+        window.location.href = `${window.location.protocol}//${window.location.host}/${type}/edit/${id}`
+    };
+    let deleteOnClick = (type, id) => {
+        $.ajax({
+            url: `/${type}/delete/${id}`,
+            type: 'DELETE',
+        })
+        .done(function(response) {
+            window.location.href = `${window.location.protocol}//${window.location.host}/${type}`
+        })
+        .fail(function(error) {
+            showError(error.responseText);
+        });
+    };
+    let createOnClick = (type) => {
+        window.location.href = `${window.location.protocol}//${window.location.host}/${type}/add`
+    };
+    let showError = (string_errors) => {
+        const errors = JSON.parse(string_errors)
+
+        for (const error of errors) {
+            $(`#${error.key}_invalid`).text(error.message)
+            $(`#${error.key}_invalid`).addClass("hasError")
+            $(`#${error.key}_invalid`).parent().addClass("hasError")
+        }
+    };
+    let removeError = () => {
+        $(".hasError").removeClass("hasError")
+        $("[id*='_invalid']").text("")
+    };
+</script>
+<script>
+    let create = () => {
+        removeError();
+        var array = $("#create_user").serializeArray();
+        var data = {};
+        $.map(array, function(n, i){
+            data[n['name']] = n['value'];
+        });
+        $.ajax({
+            url: '/user/add',
+            type: 'POST',
+            data: data,
+        })
+        .done(function(response) {
+            window.location.href = `${window.location.protocol}//${window.location.host}/`
+        })
+        .fail(function(error) {
+            showError(error.responseText);
+        });
+    }
+</script>
+</html>
